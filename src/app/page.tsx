@@ -1,20 +1,31 @@
 "use client";
 import styles from "./page.module.css";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import Navigation from "./components/Navigation/Navigation";
 import Hero from "./components/Jumbotron/Hero";
-import Calendar from "./components/Calendar/Calendar";
-import RsvpCTA from './components/RsvpCTA/RsvpCTA'
 import "./globals.css";
 
 export default function Home() {
-  const scrollRef = useRef(null);
-
   useEffect(() => {
-    (async () => {
-      const LocomotiveScroll = (await import("locomotive-scroll")).default;
-      const locomotiveScroll = new LocomotiveScroll();
-    })();
+    let locomotiveScroll: { destroy: () => void } | null = null;
+
+    const initScroll = async () => {
+      try {
+        const LocomotiveScroll = (await import("locomotive-scroll")).default;
+        locomotiveScroll = new LocomotiveScroll();
+      } catch (error) {
+        console.error('Failed to initialize Locomotive Scroll:', error);
+      }
+    };
+
+    initScroll();
+
+    // Cleanup function
+    return () => {
+      if (locomotiveScroll) {
+        locomotiveScroll.destroy();
+      }
+    };
   }, []);
 
   return (
