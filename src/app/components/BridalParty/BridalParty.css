@@ -1,0 +1,50 @@
+.mwg_effect001 {
+  overflow: hidden;
+  position: relative;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+.mwg_effect001 .cards {
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+  gap: 1vw;
+  will-change: transform;
+  padding: 0 50vw; /* Move padding here from container */
+}
+
+.card {
+  position: relative;
+  width: 25vw;
+  aspect-ratio: 0.75;
+  border-radius: 2vw;
+  overflow: hidden;
+  flex-shrink: 0; /* Prevent cards from shrinking */
+}
+
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card {
+    width: 60vw;
+    border-radius: 4vw;
+  }
+  
+  .mwg_effect001 .cards {
+    padding: 0 80vw;
+    gap: 2vw;
+  }
+}

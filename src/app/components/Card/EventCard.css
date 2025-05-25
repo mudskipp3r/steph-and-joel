@@ -1,0 +1,29 @@
+.scheduled-event {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+    width: fit-content;
+    height: 144px;
+}
+
+.scheduled-event .button-group {
+    display: flex;
+    gap: 1rem;
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
+.attendee {
+    color: purple
+}
+
+.location-title {
+    font-weight: bold;
+}

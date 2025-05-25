@@ -3,7 +3,8 @@ import styles from "./page.module.css";
 import { useEffect } from "react";
 import Navigation from "./components/Navigation/Navigation";
 import Hero from "./components/Jumbotron/Hero";
-import "./globals.css";
+import Schedule from "./components/Schedule/Schedule";
+import BridalParty from "./components/BridalParty/BridalParty";
 
 export default function Home() {
   useEffect(() => {
@@ -14,7 +15,7 @@ export default function Home() {
         const LocomotiveScroll = (await import("locomotive-scroll")).default;
         locomotiveScroll = new LocomotiveScroll();
       } catch (error) {
-        console.error('Failed to initialize Locomotive Scroll:', error);
+        console.error("Failed to initialize Locomotive Scroll:", error);
       }
     };
 
@@ -37,8 +38,16 @@ export default function Home() {
           <Hero />
         </section>
         <section id="schedule" className={styles.scheduleSection}>
-          <h1>Schedule</h1>
+          <Schedule />
         </section>
+        <section
+          id="bridalParty"
+          className={styles.bridalPartySection}
+          data-scroll-section
+        >
+            <BridalParty />
+        </section>
+        <section className={styles.faqSection}>Hello</section>
       </main>
     </div>
   );

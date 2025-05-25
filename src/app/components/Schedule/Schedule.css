@@ -1,0 +1,98 @@
+/* Main wrapper */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 60vw;
+  margin: 0 auto;
+  padding: 8rem 0;
+  align-items: center;
+}
+
+/* Section header */
+.section-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* Main content area with timeline and events */
+.schedule-content {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Timeline styles */
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  flex-shrink: 0; /* Prevent timeline from shrinking */
+  width: 80px; /* Fixed width for timeline */
+}
+
+.timeline-rule {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  left: 50%;
+  background-color: black;
+  transform: translateX(-50%);
+}
+
+.timeline-pip-container {
+  height: 214px;
+  display: flex;
+  justify-content: end;
+}
+
+.timeline-pip {
+  height: 1rem;
+  width: 1rem;
+  background-color: black;
+  border-radius: 50%;
+}
+
+/* Event card list */
+.event-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6rem;
+  min-width: 0; /* Allows flex item to shrink below content size */
+  width: 320px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .schedule-content {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .timeline {
+    flex-direction: row;
+    height: auto;
+    width: 100%;
+    gap: 1rem;
+    justify-content: center;
+  }
+  
+  .timeline-rule {
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    width: 100%;
+    transform: translateY(-50%);
+  }
+  
+  .timeline-pip-container {
+    height: auto;
+    width: auto;
+    padding: 0.5rem;
+  }
+}
