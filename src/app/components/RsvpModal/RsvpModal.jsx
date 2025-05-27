@@ -6,27 +6,73 @@ import styles from "./RsvpModal.module.css";
 function RsvpModal({ onClose }) {
   const [modalLenis, setModalLenis] = useState(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [formData, setFormData] = useState({
-    guestName: '',
-    email: '',
-    phone: '',
-    attendance: '',
-    plusOne: false,
-    plusOneName: '',
-    mealPreference: '',
-    plusOneMeal: '',
-    dietaryRestrictions: '',
-    songRequest: '',
-    specialAccommodations: '',
-    message: ''
-  });
+  const [promoCode, setPromoCode] = useState('');
+  const [plusOneEnabled, setPlusOneEnabled] = useState(false);
+  const [promoCodeError, setPromoCodeError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [showPromoField, setShowPromoField] = useState(false);
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+  const handlePlusOneChange = (e) => {
+    const isChecked = e.target.checked;
+    setShowPromoField(isChecked);
+    
+    // Reset promo code state when unchecking
+    if (!isChecked) {
+      setPromoCode('');
+      setPlusOneEnabled(false);
+      setPromoCodeError('');
+    }
+  };
+
+  const verifyPromoCode = async (code) => {
+    if (!code.trim()) {
+      setPlusOneEnabled(false);
+      setPromoCodeError('');
+      return;
+    }
+
+    setIsVerifying(true);
+    setPromoCodeError('');
+
+    try {
+      const response = await fetch('/.netlify/functions/verify-promo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ promoCode: code }),
+      });
+
+      const result = await response.json();
+
+      if (result.valid) {
+        setPlusOneEnabled(true);
+        setPromoCodeError('');
+      } else {
+        setPlusOneEnabled(false);
+        setPromoCodeError('Invalid promo code');
+      }
+    } catch (error) {
+      setPlusOneEnabled(false);
+      setPromoCodeError('Error verifying code');
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handlePromoCodeChange = (e) => {
+    const code = e.target.value;
+    setPromoCode(code);
+    
+    // Clear any existing timeout
+    if (window.promoTimeout) {
+      clearTimeout(window.promoTimeout);
+    }
+    
+    // Debounce the verification
+    window.promoTimeout = setTimeout(() => {
+      verifyPromoCode(code);
+    }, 500);
   };
 
   useEffect(() => {
@@ -74,19 +120,6 @@ function RsvpModal({ onClose }) {
         onClick={(e) => e.stopPropagation()}
         data-rsvp-modal-content
       >
-        {/* Custom Scroll Indicator */}
-        <div className={styles.scrollIndicator}>
-          <div className={styles.scrollTrack}>
-            <div 
-              className={styles.scrollThumb}
-              style={{ 
-                transform: `translateY(${scrollProgress * 100}%)`,
-                height: `${Math.max(20, 100 - scrollProgress * 80)}%` // Dynamic thumb size
-              }}
-            />
-          </div>
-        </div>
-
         <div className={styles.modalContent} data-rsvp-modal-scroll>
           <div className={styles.modalHeader}>
             <button className={styles.closeButton} onClick={onClose}>×</button>
@@ -101,9 +134,27 @@ function RsvpModal({ onClose }) {
             <form 
               name="wedding-rsvp" 
               method="POST" 
+              action="/thank-you"
               data-netlify="true" 
               netlify-honeypot="bot-field"
               className={styles.form}
+              onSubmit={(e) => {
+                // Let Netlify handle the submission
+                e.preventDefault();
+                const form = e.target;
+                fetch('/', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                  body: new URLSearchParams(new FormData(form)).toString()
+                })
+                .then(() => {
+                  alert('Thank you! Your RSVP has been submitted successfully!');
+                  onClose(); // Close modal
+                })
+                .catch((error) => {
+                  alert('There was an error submitting your RSVP. Please try again.');
+                });
+              }}
             >
               {/* Hidden fields for Netlify */}
               <input type="hidden" name="form-name" value="wedding-rsvp" />
@@ -121,8 +172,6 @@ function RsvpModal({ onClose }) {
                     type="text"
                     id="guestName"
                     name="guestName"
-                    value={formData.guestName}
-                    onChange={handleInputChange}
                     placeholder="Enter your full name"
                     required
                   />
@@ -134,8 +183,6 @@ function RsvpModal({ onClose }) {
                     type="email"
                     id="email"
                     name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
                     placeholder="your.email@example.com"
                     required
                   />
@@ -147,8 +194,6 @@ function RsvpModal({ onClose }) {
                     type="tel"
                     id="phone"
                     name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
                     placeholder="(555) 123-4567"
                   />
                 </div>
@@ -163,8 +208,6 @@ function RsvpModal({ onClose }) {
                       type="radio"
                       name="attendance"
                       value="yes"
-                      checked={formData.attendance === 'yes'}
-                      onChange={handleInputChange}
                       required
                     />
                     <span>Yes, I'll be there! 🎉</span>
@@ -174,8 +217,6 @@ function RsvpModal({ onClose }) {
                       type="radio"
                       name="attendance"
                       value="no"
-                      checked={formData.attendance === 'no'}
-                      onChange={handleInputChange}
                       required
                     />
                     <span>Sorry, I can't make it 😢</span>
@@ -186,47 +227,82 @@ function RsvpModal({ onClose }) {
               {/* Plus One */}
               <section className={styles.section}>
                 <h3>Plus One</h3>
+                
+                {/* Plus One Checkbox - Always visible */}
                 <div className={styles.checkboxGroup}>
                   <label className={styles.checkboxLabel}>
                     <input
                       type="checkbox"
-                      name="plusOne"
-                      checked={formData.plusOne}
-                      onChange={handleInputChange}
-                      value="yes"
+                      name="plusOneIntent"
+                      onChange={handlePlusOneChange}
                     />
                     <span>I'll be bringing a plus one</span>
                   </label>
                 </div>
 
-                {formData.plusOne && (
+                {/* Promo Code Input - Only show when checkbox is checked */}
+                {showPromoField && (
+                  <div className={styles.inputGroup}>
+                    <label htmlFor="promoCode">
+                      Plus One Access Code 
+                      <span className={styles.helpText}>(required to bring a plus one)</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="promoCode"
+                      value={promoCode}
+                      onChange={handlePromoCodeChange}
+                      placeholder="Enter your plus one access code"
+                      className={`${promoCodeError ? styles.error : ''} ${plusOneEnabled ? styles.success : ''}`}
+                    />
+                    {isVerifying && <span className={styles.verifyingText}>Verifying...</span>}
+                    {promoCodeError && <span className={styles.errorText}>{promoCodeError}</span>}
+                    {plusOneEnabled && <span className={styles.successText}>✓ Plus one access granted!</span>}
+                  </div>
+                )}
+
+                {/* Plus One Name - Only show when promo code is valid */}
+                {plusOneEnabled && (
                   <div className={styles.inputGroup}>
                     <label htmlFor="plusOneName">Plus One's Full Name</label>
                     <input
                       type="text"
                       id="plusOneName"
                       name="plusOneName"
-                      value={formData.plusOneName}
-                      onChange={handleInputChange}
                       placeholder="Enter your plus one's full name"
                     />
+                    {/* Hidden field to actually submit plus one status */}
+                    <input type="hidden" name="plusOne" value="yes" />
                   </div>
                 )}
               </section>
 
-              {/* Meal Preferences - Only show if attending */}
-              {formData.attendance === 'yes' && (
-                <section className={styles.section}>
-                  <h3>Meal Preferences</h3>
-                  
+              {/* Meal Preferences */}
+              <section className={styles.section}>
+                <h3>Meal Preferences</h3>
+                
+                <div className={styles.inputGroup}>
+                  <label htmlFor="mealPreference">Your Meal Choice</label>
+                  <select
+                    id="mealPreference"
+                    name="mealPreference"
+                  >
+                    <option value="">Please select...</option>
+                    <option value="beef">Herb-Crusted Beef Tenderloin</option>
+                    <option value="chicken">Lemon Herb Roasted Chicken</option>
+                    <option value="salmon">Pan-Seared Salmon</option>
+                    <option value="vegetarian">Vegetarian Pasta Primavera</option>
+                    <option value="vegan">Vegan Mediterranean Bowl</option>
+                  </select>
+                </div>
+
+                {/* Plus One Meal - Only show when plus one is enabled */}
+                {plusOneEnabled && (
                   <div className={styles.inputGroup}>
-                    <label htmlFor="mealPreference">Your Meal Choice *</label>
+                    <label htmlFor="plusOneMeal">Plus One's Meal Choice</label>
                     <select
-                      id="mealPreference"
-                      name="mealPreference"
-                      value={formData.mealPreference}
-                      onChange={handleInputChange}
-                      required={formData.attendance === 'yes'}
+                      id="plusOneMeal"
+                      name="plusOneMeal"
                     >
                       <option value="">Please select...</option>
                       <option value="beef">Herb-Crusted Beef Tenderloin</option>
@@ -236,39 +312,18 @@ function RsvpModal({ onClose }) {
                       <option value="vegan">Vegan Mediterranean Bowl</option>
                     </select>
                   </div>
+                )}
 
-                  {formData.plusOne && (
-                    <div className={styles.inputGroup}>
-                      <label htmlFor="plusOneMeal">Plus One's Meal Choice</label>
-                      <select
-                        id="plusOneMeal"
-                        name="plusOneMeal"
-                        value={formData.plusOneMeal}
-                        onChange={handleInputChange}
-                      >
-                        <option value="">Please select...</option>
-                        <option value="beef">Herb-Crusted Beef Tenderloin</option>
-                        <option value="chicken">Lemon Herb Roasted Chicken</option>
-                        <option value="salmon">Pan-Seared Salmon</option>
-                        <option value="vegetarian">Vegetarian Pasta Primavera</option>
-                        <option value="vegan">Vegan Mediterranean Bowl</option>
-                      </select>
-                    </div>
-                  )}
-
-                  <div className={styles.inputGroup}>
-                    <label htmlFor="dietaryRestrictions">Dietary Restrictions or Allergies</label>
-                    <textarea
-                      id="dietaryRestrictions"
-                      name="dietaryRestrictions"
-                      value={formData.dietaryRestrictions}
-                      onChange={handleInputChange}
-                      placeholder="Please let us know about any dietary restrictions, allergies, or special requirements..."
-                      rows="3"
-                    />
-                  </div>
-                </section>
-              )}
+                <div className={styles.inputGroup}>
+                  <label htmlFor="dietaryRestrictions">Dietary Restrictions or Allergies</label>
+                  <textarea
+                    id="dietaryRestrictions"
+                    name="dietaryRestrictions"
+                    placeholder="Please let us know about any dietary restrictions, allergies, or special requirements..."
+                    rows="3"
+                  />
+                </div>
+              </section>
 
               {/* Additional Information */}
               <section className={styles.section}>
@@ -280,8 +335,6 @@ function RsvpModal({ onClose }) {
                     type="text"
                     id="songRequest"
                     name="songRequest"
-                    value={formData.songRequest}
-                    onChange={handleInputChange}
                     placeholder="Any special song you'd love to hear at the reception?"
                   />
                 </div>
@@ -291,8 +344,6 @@ function RsvpModal({ onClose }) {
                   <textarea
                     id="specialAccommodations"
                     name="specialAccommodations"
-                    value={formData.specialAccommodations}
-                    onChange={handleInputChange}
                     placeholder="Do you need any special accommodations for the venue or ceremony?"
                     rows="3"
                   />
@@ -303,8 +354,6 @@ function RsvpModal({ onClose }) {
                   <textarea
                     id="message"
                     name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
                     placeholder="Leave a sweet message for Sarah & Michael!"
                     rows="4"
                   />
