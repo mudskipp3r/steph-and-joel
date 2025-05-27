@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Navigation from "./components/Navigation/Navigation";
 import Hero from "./components/Jumbotron/Hero";
 import Schedule from "./components/Schedule/Schedule";
-import BridalParty from "./components/BridalParty/BridalParty";
 import RsvpModal from "./components/RsvpModal/RsvpModal";
 import LocomotiveScroll from "locomotive-scroll";
 import FAQ from './components/FAQ/FAQ'
