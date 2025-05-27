@@ -35,15 +35,17 @@ export default function Hero() {
       y: 0,
       duration: 1.2,
       stagger: 0.3,
-      ease: "power3.out"
+      ease: "power3.out",
     });
 
     // Wait for entrance animation to complete before starting parallax
     entranceTl.call(() => {
       // Responsive parallax values with proper fallbacks
-      const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-      const isTablet = typeof window !== 'undefined' && window.innerWidth <= 1024;
-      
+      const isMobile =
+        typeof window !== "undefined" && window.innerWidth <= 768;
+      const isTablet =
+        typeof window !== "undefined" && window.innerWidth <= 1024;
+
       // Adjust parallax intensity based on device with fallbacks
       const parallaxMultiplier = isMobile ? 0.3 : isTablet ? 0.6 : 1;
 
@@ -56,8 +58,8 @@ export default function Hero() {
             trigger: hero,
             start: "top top",
             end: "bottom top",
-            scrub: 0.5 * parallaxMultiplier
-          }
+            scrub: 0.5 * parallaxMultiplier,
+          },
         });
       }
 
@@ -67,10 +69,10 @@ export default function Hero() {
           ease: "none",
           scrollTrigger: {
             trigger: hero,
-            start: "top top", 
+            start: "top top",
             end: "bottom top",
-            scrub: 0.8 * parallaxMultiplier
-          }
+            scrub: 0.8 * parallaxMultiplier,
+          },
         });
       }
 
@@ -81,44 +83,50 @@ export default function Hero() {
           scrollTrigger: {
             trigger: hero,
             start: "top top",
-            end: "bottom top", 
-            scrub: 0.3 * parallaxMultiplier
-          }
+            end: "bottom top",
+            scrub: 0.3 * parallaxMultiplier,
+          },
         });
       }
 
       if (foreground) {
+        // Combined parallax Y movement with scale effect
         gsap.to(foreground, {
+          y: -200 * parallaxMultiplier,
+          scale: 0.8, // Scale down as we scroll - moving further away
+          ease: "none",
+          scrollTrigger: {
+            trigger: hero,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1.0 * parallaxMultiplier,
+          },
+        });
+      }
+
+      if (semiCircle) {
+        gsap.to(semiCircle, {
           y: -200 * parallaxMultiplier,
           ease: "none",
           scrollTrigger: {
             trigger: hero,
             start: "top top",
             end: "bottom top",
-            scrub: 1.0 * parallaxMultiplier
-          }
-        });
-      }
-
-      if (semiCircle) {
-        gsap.to(semiCircle, {
-          y: -120 * parallaxMultiplier,
-          ease: "none",
-          scrollTrigger: {
-            trigger: hero,
-            start: "top top",
-            end: "bottom top",
-            scrub: 1.2 * parallaxMultiplier
-          }
+            scrub: 1.2 * parallaxMultiplier,
+          },
         });
       }
     });
 
     // Cleanup
     return () => {
-      ScrollTrigger.getAll().forEach(trigger => {
-        if (trigger.trigger === hero || 
-            [heroContent, calendar, background, foreground, semiCircle].includes(trigger.trigger)) {
+      ScrollTrigger.getAll().forEach((trigger) => {
+        if (
+          trigger.trigger === hero ||
+          [heroContent, calendar, background, foreground, semiCircle].includes(
+            trigger.trigger
+          )
+        ) {
           trigger.kill();
         }
       });
@@ -126,85 +134,101 @@ export default function Hero() {
   }, []);
 
   return (
-    <div 
+    <div
       ref={heroRef}
       style={{
-        position: 'relative',
-        height: '100vh',
-        display: 'flex',
-        zIndex: 0
+        position: "relative",
+        height: "100vh",
+        display: "flex",
+        zIndex: 0,
       }}
     >
       {/* Hero Content Container */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 999,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        paddingTop: 'clamp(30vh, 35vh, 60vh)',
-        gap: 'clamp(1rem, 4vw, 2rem)',
-      }}>
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 999,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          paddingTop: "clamp(30vh, 35vh, 60vh)",
+          gap: "clamp(1rem, 4vw, 2rem)",
+        }}
+      >
         {/* Hero Text */}
-        <div 
+        <div
           ref={heroContentRef}
           style={{
-            width: 'clamp(300px, 90vw, 640px)',
-            maxWidth: '90vw',
-            padding: '0 1rem'
+            width: "clamp(300px, 90vw, 640px)",
+            maxWidth: "90vw",
+            padding: "0 1rem",
+            opacity: 0, // Add this
+            transform: "translateY(50px)", // Add this
           }}
         >
-          <p style={{
-            color: 'white',
-            fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
-            margin: '0 0 1rem 0'
-          }}>
+          <p
+            style={{
+              color: "white",
+              fontSize: "clamp(1rem, 2.5vw, 1.125rem)",
+              textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+              margin: "0 0 1rem 0",
+            }}
+          >
             Save the date
           </p>
-          <h1 style={{
-            color: 'white',
-            fontSize: 'clamp(2.5rem, 8vw, 4rem)',
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
-            margin: 0,
-            fontWeight: '700',
-            lineHeight: '1.2'
-          }}>
+          <h1
+            style={{
+              color: "white",
+              fontSize: "clamp(2.5rem, 8vw, 4rem)",
+              textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
+              margin: 0,
+              fontWeight: "700",
+              lineHeight: "1.2",
+            }}
+          >
             Stephanie and Joel are getting married
           </h1>
         </div>
-        
+
         {/* Calendar */}
-        <div ref={calendarRef}>
+        <div
+          ref={calendarRef}
+          style={{
+            opacity: 0, // Add this
+            transform: "translateY(50px)", // Add this
+          }}
+        >
           <Calendar />
         </div>
       </div>
 
       {/* Image Wrapper */}
-      <div style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         {/* Background Container */}
-        <div 
+        <div
           ref={backgroundRef}
           style={{
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
-            width: '100%',
-            height: 'clamp(70vh, 80vh, 85vh)',
-            zIndex: 1
+            width: "100%",
+            height: "clamp(70vh, 80vh, 85vh)",
+            zIndex: 1,
           }}
         >
           <Image
@@ -223,16 +247,17 @@ export default function Hero() {
           />
         </div>
 
-        {/* Foreground Container */}
+        {/* Foreground Container with Scale Effect */}
         <div
           ref={foregroundRef}
           style={{
-            position: 'absolute',
-            width: 'clamp(150%, 200%, 250%)',
-            bottom: 'clamp(10vh, 15vh, 20vh)',
-            height: 'clamp(50vh, 70vh, 80vh)',
+            position: "absolute",
+            width: "clamp(150%, 200%, 250%)",
+            bottom: "clamp(10vh, 15vh, 20vh)",
+            height: "clamp(50vh, 70vh, 80vh)",
             zIndex: 3,
-            pointerEvents: 'none'
+            pointerEvents: "none",
+            transformOrigin: "center center", // Important for smooth scaling
           }}
         >
           <Image
@@ -246,7 +271,7 @@ export default function Hero() {
               width: "100%",
               height: "100%",
               objectFit: "cover",
-              objectPosition: "top"
+              objectPosition: "top",
             }}
           />
         </div>
@@ -255,17 +280,17 @@ export default function Hero() {
         <div
           ref={semiCircleRef}
           style={{
-            position: 'absolute',
-            top: 'clamp(65vh, 75vh, 80vh)',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            position: "absolute",
+            top: "clamp(65vh, 75vh, 80vh)",
+            left: "50%",
+            transform: "translateX(-50%)",
             zIndex: 3,
-            width: 'clamp(180%, 200%, 220%)',
-            height: 'clamp(400px, 700px, 900px)',
-            backgroundColor: '#F5F0EB',
-            borderTopLeftRadius: '100%',
-            borderTopRightRadius: '100%',
-            clipPath: 'inset(0 0 50% 0)'
+            width: "clamp(180%, 200%, 220%)",
+            height: "clamp(400px, 700px, 900px)",
+            backgroundColor: "#F5F0EB",
+            borderTopLeftRadius: "100%",
+            borderTopRightRadius: "100%",
+            clipPath: "inset(0 0 50% 0)",
           }}
         />
       </div>
