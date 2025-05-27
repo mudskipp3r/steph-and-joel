@@ -79,7 +79,7 @@ function RsvpModal({ onClose }) {
             <button className={styles.closeButton} onClick={onClose}>×</button>
           </div>
 
-          <div className={styles.rsvpForm} netlify="true">
+          <div className={styles.rsvpForm}>
             <div className={styles.formHeader}>
               <h2>RSVP to Sarah & Michael's Wedding</h2>
               <p>We're so excited to celebrate with you! Please fill out this form by May 15th, 2024.</p>
@@ -88,7 +88,7 @@ function RsvpModal({ onClose }) {
             <form 
               name="wedding-rsvp" 
               method="POST" 
-              data-netlify="true" 
+              netlify="true" 
               netlify-honeypot="bot-field"
               className={styles.form}
             >
