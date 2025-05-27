@@ -314,7 +314,6 @@ const Schedule = () => {
         margin: '0 auto',
         padding: '6rem 2rem',
         backgroundColor: '#F5F0EB',
-        minHeight: '100vh'
       }}
     >
       {/* Section Header */}

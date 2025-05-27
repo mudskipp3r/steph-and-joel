@@ -71,13 +71,13 @@ export default function Home() {
         <section id="schedule" className={styles.scheduleSection}>
           <Schedule />
         </section>
-        <section
+        {/* <section
           id="bridalparty"
           className={styles.bridalPartySection}
           data-scroll-section
         >
           <BridalParty />
-        </section>
+        </section> */}
         <section id="faq" className={styles.faqSection}><FAQ /></section>
       </main>
     </div>
