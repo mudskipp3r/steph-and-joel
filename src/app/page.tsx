@@ -7,6 +7,7 @@ import Schedule from "./components/Schedule/Schedule";
 import BridalParty from "./components/BridalParty/BridalParty";
 import RsvpModal from "./components/RsvpModal/RsvpModal";
 import LocomotiveScroll from "locomotive-scroll";
+import FAQ from './components/FAQ/FAQ'
 
 export default function Home() {
   const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
@@ -77,7 +78,7 @@ export default function Home() {
         >
           <BridalParty />
         </section>
-        <section className={styles.faqSection}>Hello</section>
+        <section className={styles.faqSection}><FAQ /></section>
       </main>
     </div>
   );

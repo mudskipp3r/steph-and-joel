@@ -1,0 +1,175 @@
+/* FAQ Section Wrapper */
+.faqSection {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  background-color: #F5F0EB;
+  min-height: 100vh;
+}
+
+/* Header Section */
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* FAQ List Container */
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Individual FAQ Item */
+.faqItem {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.faqItem:hover {
+  transform: translateY(-1px);
+}
+
+.faqItem.open {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: #667eea;
+}
+
+/* FAQ Button */
+.faqButton {
+  width: 100%;
+  padding: 1.5rem;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.question {
+  padding-right: 1rem;
+}
+
+/* Icon Container */
+.iconContainer {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+.iconContainer.open {
+  background-color: #667eea;
+}
+
+.icon {
+  color: #666;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.icon.open {
+  color: white;
+}
+
+/* Content Container */
+.contentContainer {
+  overflow: hidden;
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.content {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.answer {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .faqSection {
+    padding: 3rem 1.5rem;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+  }
+  
+  .subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .faqButton {
+    padding: 1.25rem;
+    font-size: 1rem;
+  }
+  
+  .question {
+    padding-right: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .faqSection {
+    padding: 2rem 1rem;
+  }
+  
+  .title {
+    font-size: 2rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  .faqList {
+    gap: 0.75rem;
+  }
+  
+  .faqButton {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .iconContainer {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .icon {
+    font-size: 16px;
+  }
+}
