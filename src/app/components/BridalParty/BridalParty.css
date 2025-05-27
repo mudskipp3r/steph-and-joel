@@ -16,15 +16,15 @@
   display: flex;
   width: max-content;
   white-space: nowrap;
-  gap: 1vw;
+  gap: 2vw;
   will-change: transform;
-  padding-left: 100vw; /* Move padding here from container */
-  padding-right: 120vw; /* Move padding here from container */
+  padding-left: 60vw; /* Move padding here from container */
+  padding-right: 70vw; /* Move padding here from container */
 }
 
 .card {
   position: relative;
-  width: 25vw;
+  width: 20vw;
   aspect-ratio: 0.75;
   border-radius: 2vw;
   overflow: hidden;
