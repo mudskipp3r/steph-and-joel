@@ -33,8 +33,8 @@ function BridalParty() {
         pinSpacer: false,
         scrub: true,
         start: "top top",
-        end: "+=" + distance, // Use actual distance instead of percentage
-        markers: true, // Remove this in production
+        end: "+=" + distance,
+        markers: false, // Set to false for production
       },
     });
 
@@ -67,10 +67,25 @@ function BridalParty() {
         }
       );
     });
-  });
+
+    // Cleanup function
+    return () => {
+      // Kill all ScrollTriggers associated with this component
+      ScrollTrigger.getAll().forEach(trigger => {
+        if (trigger.trigger === container || 
+            cards.some(card => card === trigger.trigger)) {
+          trigger.kill();
+        }
+      });
+      
+      // Alternative: kill all ScrollTriggers (if this is the only component using them)
+      // ScrollTrigger.killAll();
+    };
+  }, []);
 
   return (
     <div className="mwg_effect001">
+      <p>Meet the bridal party</p>
       <div ref={containerRef} className="container">
         <div ref={cardsContainerRef} className="cards">
           <BridalPartyCard name="Kat" image="/images/bridalParty/1.jpg" info="" />

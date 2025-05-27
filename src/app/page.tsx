@@ -1,12 +1,23 @@
 "use client";
 import styles from "./page.module.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Navigation from "./components/Navigation/Navigation";
 import Hero from "./components/Jumbotron/Hero";
 import Schedule from "./components/Schedule/Schedule";
 import BridalParty from "./components/BridalParty/BridalParty";
+import RsvpModal from "./components/RsvpModal/RsvpModal";
 
 export default function Home() {
+  const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
+  
+function handleOpenRsvpModal() {
+  setIsRsvpModalOpen(true);
+}
+
+function handleCloseRsvpModal() {
+  setIsRsvpModalOpen(false);
+}
+
   useEffect(() => {
     let locomotiveScroll: { destroy: () => void } | null = null;
 
@@ -29,9 +40,12 @@ export default function Home() {
     };
   }, []);
 
+  
+
   return (
     <div data-scroll data-scroll-container>
-      <Navigation />
+      <Navigation onRsvpClick={handleOpenRsvpModal} />
+      {isRsvpModalOpen && <RsvpModal onClose={handleCloseRsvpModal}/>}
       <main className={styles.main}>
         {/* Hero section */}
         <section id="home" data-scroll-section>
@@ -45,7 +59,7 @@ export default function Home() {
           className={styles.bridalPartySection}
           data-scroll-section
         >
-            <BridalParty />
+          <BridalParty />
         </section>
         <section className={styles.faqSection}>Hello</section>
       </main>

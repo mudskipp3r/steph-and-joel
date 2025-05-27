@@ -2,7 +2,8 @@ import React from "react";
 import styles from "./Navigation.module.css";
 import OutlineButton from "../Button/OutlineButton";
 
-function Navigation() {
+function Navigation(props) {
+  const {onRsvpClick} = props
   return (
     <div className={styles.wrapper}>
       <div>
@@ -25,7 +26,7 @@ function Navigation() {
             <a href="#">Registry</a>
           </li>
           <li>
-            <OutlineButton>RSVP</OutlineButton>
+            <OutlineButton onClick={onRsvpClick}>RSVP</OutlineButton>
           </li>
         </ul>
       </div>

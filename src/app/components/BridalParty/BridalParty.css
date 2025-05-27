@@ -18,7 +18,8 @@
   white-space: nowrap;
   gap: 1vw;
   will-change: transform;
-  padding: 0 50vw; /* Move padding here from container */
+  padding-left: 100vw; /* Move padding here from container */
+  padding-right: 120vw; /* Move padding here from container */
 }
 
 .card {

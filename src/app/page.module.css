@@ -1,7 +1,7 @@
 /* Main container */
 .main {
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow: hidden auto; /* hidden for x, auto for y */
   background-color: #F5F0EB;
 }
 
@@ -34,10 +34,6 @@
 }
 
 .bridalPartySection {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: white;
 }
 
 .faqSection {
