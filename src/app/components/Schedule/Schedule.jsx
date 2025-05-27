@@ -312,7 +312,7 @@ const Schedule = () => {
       style={{
         maxWidth: '900px',
         margin: '0 auto',
-        padding: '6rem 2rem',
+        padding: '2rem 2rem',
       }}
     >
       {/* Section Header */}
