@@ -74,6 +74,19 @@ function RsvpModal({ onClose }) {
         onClick={(e) => e.stopPropagation()}
         data-rsvp-modal-content
       >
+        {/* Custom Scroll Indicator */}
+        <div className={styles.scrollIndicator}>
+          <div className={styles.scrollTrack}>
+            <div 
+              className={styles.scrollThumb}
+              style={{ 
+                transform: `translateY(${scrollProgress * 100}%)`,
+                height: `${Math.max(20, 100 - scrollProgress * 80)}%` // Dynamic thumb size
+              }}
+            />
+          </div>
+        </div>
+
         <div className={styles.modalContent} data-rsvp-modal-scroll>
           <div className={styles.modalHeader}>
             <button className={styles.closeButton} onClick={onClose}>×</button>
@@ -88,7 +101,7 @@ function RsvpModal({ onClose }) {
             <form 
               name="wedding-rsvp" 
               method="POST" 
-              netlify="true" 
+              data-netlify="true" 
               netlify-honeypot="bot-field"
               className={styles.form}
             >
