@@ -148,9 +148,8 @@ export default function Hero() {
         alignItems: 'center',
         justifyContent: 'center',
         textAlign: 'center',
-        paddingTop: 'clamp(20vh, 30vh, 35vh)',
+        paddingTop: 'clamp(30vh, 35vh, 60vh)',
         gap: 'clamp(1rem, 4vw, 2rem)',
-        padding: '0 1rem'
       }}>
         {/* Hero Text */}
         <div 

@@ -17,7 +17,7 @@ function Calendar() {
       backgroundColor: 'white',
       borderRadius: 'clamp(0.75rem, 2vw, 1rem)',
       boxShadow: 'rgba(255, 255, 255, 0.1) 0px 1px 1px 0px inset, rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px',
-      width: 'clamp(280px, 90vw, 600px)',
+      width: 'clamp(280px, 70vw, 720px)',
       maxWidth: '100%'
     }}>
       <div style={{
@@ -30,7 +30,8 @@ function Calendar() {
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center'
+          justifyContent: 'start',
+          alignItems: 'start',
         }}>
           <h1 style={{
             fontSize: 'clamp(2.5rem, 8vw, 4rem)',
@@ -64,7 +65,7 @@ function Calendar() {
           <div style={{
             position: 'absolute',
             top: 'clamp(56px, 12vw, 80px)',
-            right: 'clamp(72px, 15vw, 100px)',
+            right: 'clamp(64px, 12vw, 144px)',
             zIndex: 999,
             width: 'clamp(35px, 8vw, 50px)',
             height: 'clamp(35px, 8vw, 50px)',
