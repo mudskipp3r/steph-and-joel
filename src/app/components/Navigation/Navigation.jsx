@@ -9,6 +9,7 @@ function Navigation({ onRsvpClick }) {
   const [isMobile, setIsMobile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [scrolledUpFromBottom, setScrolledUpFromBottom] = useState(false);
   const navRef = useRef(null);
   const lastScrollY = useRef(0);
   const isHidden = useRef(false);
@@ -30,10 +31,12 @@ function Navigation({ onRsvpClick }) {
       if (currentScrollY > lastScrollY.current && currentScrollY > 100 && !isHidden.current) {
         gsap.to(navRef.current, { y: "-100%", duration: 0.3, ease: "power2.out" });
         isHidden.current = true;
-      } else if ((currentScrollY < lastScrollY.current || currentScrollY < 10) && isHidden.current) {
+        setScrolledUpFromBottom(false);
+      } else if ((currentScrollY < lastScrollY.current || currentScrollY <= 10) && isHidden.current) {
         gsap.to(navRef.current, { y: "0%", duration: 0.3, ease: "power2.out" });
         isHidden.current = false;
       }
+      setScrolledUpFromBottom(currentScrollY > 100);
 
       lastScrollY.current = currentScrollY;
     };
@@ -60,7 +63,7 @@ function Navigation({ onRsvpClick }) {
     zIndex: 999,
     flexWrap: "wrap",
     transform: "translateY(0%)",
-    backgroundColor: isHovered ? "rgba(0,0,0,0.05)" : "transparent",
+    backgroundColor: scrolledUpFromBottom ? "#fff" : "transparent",
     transition: "background-color 0.3s ease"
   };
 
