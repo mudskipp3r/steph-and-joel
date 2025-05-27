@@ -64,15 +64,13 @@ function RsvpModal({ onClose }) {
     const code = e.target.value;
     setPromoCode(code);
     
-    // Clear any existing timeout
-    if (window.promoTimeout) {
-      clearTimeout(window.promoTimeout);
-    }
-    
-    // Debounce the verification
-    window.promoTimeout = setTimeout(() => {
-      verifyPromoCode(code);
-    }, 500);
+    // Reset states when user types
+    setPlusOneEnabled(false);
+    setPromoCodeError('');
+  };
+
+  const handleVerifyClick = () => {
+    verifyPromoCode(promoCode);
   };
 
   useEffect(() => {
@@ -247,15 +245,24 @@ function RsvpModal({ onClose }) {
                       Plus One Access Code 
                       <span className={styles.helpText}>(required to bring a plus one)</span>
                     </label>
-                    <input
-                      type="text"
-                      id="promoCode"
-                      value={promoCode}
-                      onChange={handlePromoCodeChange}
-                      placeholder="Enter your plus one access code"
-                      className={`${promoCodeError ? styles.error : ''} ${plusOneEnabled ? styles.success : ''}`}
-                    />
-                    {isVerifying && <span className={styles.verifyingText}>Verifying...</span>}
+                    <div className={styles.promoCodeContainer}>
+                      <input
+                        type="text"
+                        id="promoCode"
+                        value={promoCode}
+                        onChange={handlePromoCodeChange}
+                        placeholder="Enter your plus one access code"
+                        className={`${styles.promoCodeInput} ${promoCodeError ? styles.error : ''} ${plusOneEnabled ? styles.success : ''}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleVerifyClick}
+                        disabled={!promoCode.trim() || isVerifying}
+                        className={styles.verifyButton}
+                      >
+                        {isVerifying ? 'Verifying...' : 'Verify'}
+                      </button>
+                    </div>
                     {promoCodeError && <span className={styles.errorText}>{promoCodeError}</span>}
                     {plusOneEnabled && <span className={styles.successText}>✓ Plus one access granted!</span>}
                   </div>

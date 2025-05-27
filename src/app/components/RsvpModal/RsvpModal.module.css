@@ -189,6 +189,59 @@
   font-size: 0.9rem;
 }
 
+/* Promo Code Container */
+.promoCodeContainer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.promoCodeInput {
+  flex: 1;
+  width: auto !important; /* Override the 100% width from inputGroup */
+}
+
+.verifyButton {
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.verifyButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.verifyButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .promoCodeContainer {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .promoCodeInput {
+    width: 100% !important;
+  }
+  
+  .verifyButton {
+    width: 100%;
+  }
+}
+
 /* Promo Code Styling */
 .helpText {
   font-size: 0.85rem;
