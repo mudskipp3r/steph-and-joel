@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hidden Forms for Netlify</title>
+</head>
+<body style="display: none;">
+  <!-- This form is hidden but lets Netlify detect the form structure -->
+  <form name="wedding-rsvp" netlify netlify-honeypot="bot-field" hidden>
+    <input type="text" name="guestName" />
+    <input type="email" name="email" />
+    <input type="tel" name="phone" />
+    <input type="radio" name="attendance" />
+    <input type="checkbox" name="plusOne" />
+    <input type="text" name="plusOneName" />
+    <select name="mealPreference">
+      <option value="beef">Beef</option>
+      <option value="chicken">Chicken</option>
+      <option value="salmon">Salmon</option>
+      <option value="vegetarian">Vegetarian</option>
+      <option value="vegan">Vegan</option>
+    </select>
+    <select name="plusOneMeal">
+      <option value="beef">Beef</option>
+      <option value="chicken">Chicken</option>
+      <option value="salmon">Salmon</option>
+      <option value="vegetarian">Vegetarian</option>
+      <option value="vegan">Vegan</option>
+    </select>
+    <textarea name="dietaryRestrictions"></textarea>
+    <input type="text" name="songRequest" />
+    <textarea name="specialAccommodations"></textarea>
+    <textarea name="message"></textarea>
+  </form>
+</body>
+</html>
