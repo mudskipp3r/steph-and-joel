@@ -5,26 +5,22 @@ function RsvpModal({ onClose }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [modalLenis, setModalLenis] = useState(null);
   const [promoCode, setPromoCode] = useState("");
   const [plusOneEnabled, setPlusOneEnabled] = useState(false);
   const [promoCodeError, setPromoCodeError] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [showPromoField, setShowPromoField] = useState(false);
 
-  // Separate refs for GSAP vs Lenis
   const modalRef = useRef(null);
   const overlayRef = useRef(null);
-  const animationWrapperRef = useRef(null); // GSAP animates this
-  const scrollContainerRef = useRef(null); // Lenis uses this
-  const scrollContentRef = useRef(null); // Lenis content
+  const contentRef = useRef(null);
 
   // GSAP entrance animation
   useEffect(() => {
-    if (overlayRef.current && animationWrapperRef.current) {
+    if (overlayRef.current && contentRef.current) {
       // Set initial states
       gsap.set(overlayRef.current, { opacity: 0 });
-      gsap.set(animationWrapperRef.current, { 
+      gsap.set(contentRef.current, { 
         scale: 0.7, 
         y: 50, 
         opacity: 0,
@@ -32,16 +28,14 @@ function RsvpModal({ onClose }) {
       });
 
       // Create entrance timeline
-      const tl = gsap.timeline({
-        onComplete: initializeLenis // Initialize Lenis after animation
-      });
+      const tl = gsap.timeline();
       
       tl.to(overlayRef.current, {
         opacity: 1,
         duration: 0.3,
         ease: "power2.out"
       })
-      .to(animationWrapperRef.current, {
+      .to(contentRef.current, {
         scale: 1,
         y: 0,
         opacity: 1,
@@ -51,60 +45,23 @@ function RsvpModal({ onClose }) {
       }, "-=0.1");
     }
 
+    // Prevent body scroll when modal is open
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    
     return () => {
-      // Cleanup Lenis on unmount
-      if (modalLenis) {
-        modalLenis.destroy();
-      }
+      document.body.style.overflow = originalOverflow;
     };
   }, []);
 
-  // Initialize Lenis after GSAP animation completes
-  const initializeLenis = async () => {
-    try {
-      // Dynamically import Lenis
-      const Lenis = (await import("lenis")).default;
-      
-      const modalLenisInstance = new Lenis({
-        wrapper: scrollContainerRef.current,
-        content: scrollContentRef.current,
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        direction: "vertical",
-        gestureDirection: "vertical",
-        smooth: true,
-        mouseMultiplier: 1,
-        smoothTouch: false,
-        touchMultiplier: 2,
-        infinite: false,
-      });
-
-      setModalLenis(modalLenisInstance);
-
-      // Add to GSAP ticker
-      gsap.ticker.add((time) => {
-        modalLenisInstance.raf(time * 1000);
-      });
-
-    } catch (error) {
-      console.error("Failed to initialize modal Lenis:", error);
-    }
-  };
-
   const handleClose = () => {
-    if (overlayRef.current && animationWrapperRef.current) {
-      // Destroy Lenis first
-      if (modalLenis) {
-        modalLenis.destroy();
-        setModalLenis(null);
-      }
-
+    if (overlayRef.current && contentRef.current) {
       // Create exit animation
       const tl = gsap.timeline({
         onComplete: onClose
       });
       
-      tl.to(animationWrapperRef.current, {
+      tl.to(contentRef.current, {
         scale: 0.8,
         y: -30,
         opacity: 0,
@@ -222,35 +179,25 @@ function RsvpModal({ onClose }) {
       backgroundColor: "rgba(0, 0, 0, 0.6)",
       zIndex: 1000,
       display: "flex",
-      alignItems: "flex-start",
+      alignItems: "center",
       justifyContent: "center",
-      padding: "2rem 0"
+      padding: "1rem",
+      // Enable native scrolling
+      overflowY: "auto",
+      WebkitOverflowScrolling: "touch" // iOS smooth scrolling
     },
-    animationWrapper: {
-      // This is what GSAP animates
-      borderRadius: "12px",
-      maxWidth: "700px",
-      width: "90%",
-      maxHeight: "85vh",
-      margin: "2rem auto",
-      boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
-      position: "relative",
-      transformOrigin: "center center"
-    },
-    scrollContainer: {
-      // This is what Lenis controls
+    modalContainer: {
       background: "white",
       borderRadius: "12px",
       width: "100%",
-      height: "100%",
-      maxHeight: "85vh",
-      overflow: "hidden",
-      position: "relative"
-    },
-    scrollContent: {
-      // Lenis scrollable content
-      width: "100%",
-      minHeight: "100%"
+      maxWidth: "700px",
+      maxHeight: "90vh",
+      position: "relative",
+      boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+      margin: "auto",
+      // Ensure modal can scroll if content is too tall
+      overflowY: "auto",
+      WebkitOverflowScrolling: "touch"
     },
     closeButton: {
       position: "absolute",
@@ -336,54 +283,52 @@ function RsvpModal({ onClose }) {
     return (
       <div ref={modalRef}>
         <div ref={overlayRef} style={modalStyles.overlay} onClick={handleClose}>
-          <div ref={animationWrapperRef} style={modalStyles.animationWrapper} onClick={(e) => e.stopPropagation()}>
-            <div style={modalStyles.scrollContainer}>
-              <button style={modalStyles.closeButton} onClick={handleClose}>
-                ×
-              </button>
+          <div ref={contentRef} style={modalStyles.modalContainer} onClick={(e) => e.stopPropagation()}>
+            <button style={modalStyles.closeButton} onClick={handleClose}>
+              ×
+            </button>
+            <div style={{
+              textAlign: "center",
+              padding: "4rem 2rem",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "400px"
+            }}>
               <div style={{
-                textAlign: "center",
-                padding: "4rem 2rem",
+                fontSize: "4rem",
+                color: "#27ae60",
+                marginBottom: "1rem",
+                background: "rgba(39, 174, 96, 0.1)",
+                width: "80px",
+                height: "80px",
+                borderRadius: "50%",
                 display: "flex",
-                flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                minHeight: "400px"
+                fontWeight: "bold"
               }}>
-                <div style={{
-                  fontSize: "4rem",
-                  color: "#27ae60",
-                  marginBottom: "1rem",
-                  background: "rgba(39, 174, 96, 0.1)",
-                  width: "80px",
-                  height: "80px",
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: "bold"
-                }}>
-                  ✓
-                </div>
-                <h2 style={{ color: "#2c3e50", marginBottom: "1rem", fontSize: "2rem" }}>
-                  Thank You!
-                </h2>
-                <p style={{ color: "#666", fontSize: "1.1rem", marginBottom: "0.5rem", maxWidth: "400px" }}>
-                  Your RSVP has been submitted successfully!
-                </p>
-                <p style={{ color: "#666", fontSize: "1.1rem", marginBottom: "2rem", maxWidth: "400px" }}>
-                  We'll send a confirmation email shortly.
-                </p>
-                <button
-                  onClick={handleClose}
-                  style={{
-                    ...modalStyles.submitButton,
-                    background: "linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)"
-                  }}
-                >
-                  Close
-                </button>
+                ✓
               </div>
+              <h2 style={{ color: "#2c3e50", marginBottom: "1rem", fontSize: "2rem" }}>
+                Thank You!
+              </h2>
+              <p style={{ color: "#666", fontSize: "1.1rem", marginBottom: "0.5rem", maxWidth: "400px" }}>
+                Your RSVP has been submitted successfully!
+              </p>
+              <p style={{ color: "#666", fontSize: "1.1rem", marginBottom: "2rem", maxWidth: "400px" }}>
+                We'll send a confirmation email shortly.
+              </p>
+              <button
+                onClick={handleClose}
+                style={{
+                  ...modalStyles.submitButton,
+                  background: "linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)"
+                }}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
@@ -394,284 +339,278 @@ function RsvpModal({ onClose }) {
   return (
     <div ref={modalRef}>
       <div ref={overlayRef} style={modalStyles.overlay} onClick={handleClose}>
-        <div ref={animationWrapperRef} style={modalStyles.animationWrapper} onClick={(e) => e.stopPropagation()}>
-          <div ref={scrollContainerRef} style={modalStyles.scrollContainer}>
-            <div ref={scrollContentRef} style={modalStyles.scrollContent}>
-              <button style={modalStyles.closeButton} onClick={handleClose}>
-                ×
-              </button>
+        <div ref={contentRef} style={modalStyles.modalContainer} onClick={(e) => e.stopPropagation()}>
+          <button style={modalStyles.closeButton} onClick={handleClose}>
+            ×
+          </button>
+          
+          <form onSubmit={handleSubmit} style={modalStyles.form}>
+            <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+              <h2 style={{ color: "#2c3e50", marginBottom: "1rem", fontSize: "2rem" }}>
+                RSVP to Stephanie & Joel's Wedding
+              </h2>
+              <p style={{ color: "#666", fontSize: "1.1rem" }}>
+                We're so excited to celebrate with you! Please fill out this form by January 15th, 2026.
+              </p>
+            </div>
+
+            {submitError && (
+              <div style={{
+                backgroundColor: "#fee",
+                border: "1px solid #fcc",
+                borderRadius: "8px",
+                padding: "1rem",
+                marginBottom: "1.5rem",
+                color: "#e74c3c",
+                textAlign: "center",
+                fontWeight: "500"
+              }}>
+                {submitError}
+              </div>
+            )}
+
+            {/* Hidden fields for Netlify */}
+            <input type="hidden" name="form-name" value="wedding-rsvp" />
+            
+            {/* Guest Information */}
+            <section style={modalStyles.section}>
+              <h3 style={{ color: "#34495e", marginBottom: "1rem", fontSize: "1.3rem" }}>
+                Guest Information
+              </h3>
               
-              <div style={modalStyles.form}>
-                <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-                  <h2 style={{ color: "#2c3e50", marginBottom: "1rem", fontSize: "2rem" }}>
-                    RSVP to Stephanie & Joel's Wedding
-                  </h2>
-                  <p style={{ color: "#666", fontSize: "1.1rem" }}>
-                    We're so excited to celebrate with you! Please fill out this form by January 15th, 2026.
-                  </p>
-                </div>
+              <div style={modalStyles.inputGroup}>
+                <label style={modalStyles.label} htmlFor="guestName">Full Name *</label>
+                <input
+                  style={modalStyles.input}
+                  type="text"
+                  id="guestName"
+                  name="guestName"
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
 
-                {submitError && (
-                  <div style={{
-                    backgroundColor: "#fee",
-                    border: "1px solid #fcc",
-                    borderRadius: "8px",
-                    padding: "1rem",
-                    marginBottom: "1.5rem",
-                    color: "#e74c3c",
-                    textAlign: "center",
-                    fontWeight: "500"
-                  }}>
-                    {submitError}
-                  </div>
-                )}
+              <div style={modalStyles.inputGroup}>
+                <label style={modalStyles.label} htmlFor="email">Email Address *</label>
+                <input
+                  style={modalStyles.input}
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="your.email@example.com"
+                  required
+                />
+              </div>
 
-                <div onSubmit={handleSubmit}>
-                  {/* Hidden fields for Netlify */}
-                  <input type="hidden" name="form-name" value="wedding-rsvp" />
-                  
-                  {/* Guest Information */}
-                  <section style={modalStyles.section}>
-                    <h3 style={{ color: "#34495e", marginBottom: "1rem", fontSize: "1.3rem" }}>
-                      Guest Information
-                    </h3>
-                    
-                    <div style={modalStyles.inputGroup}>
-                      <label style={modalStyles.label} htmlFor="guestName">Full Name *</label>
-                      <input
-                        style={modalStyles.input}
-                        type="text"
-                        id="guestName"
-                        name="guestName"
-                        placeholder="Enter your full name"
-                        required
-                      />
-                    </div>
+              <div style={modalStyles.inputGroup}>
+                <label style={modalStyles.label} htmlFor="phone">Phone Number</label>
+                <input
+                  style={modalStyles.input}
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </section>
 
-                    <div style={modalStyles.inputGroup}>
-                      <label style={modalStyles.label} htmlFor="email">Email Address *</label>
-                      <input
-                        style={modalStyles.input}
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="your.email@example.com"
-                        required
-                      />
-                    </div>
+            {/* Attendance */}
+            <section style={modalStyles.section}>
+              <h3 style={{ color: "#34495e", marginBottom: "1rem", fontSize: "1.3rem" }}>
+                Will you be attending? *
+              </h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer", padding: "0.5rem", borderRadius: "8px" }}>
+                  <input type="radio" name="attendance" value="yes" required />
+                  <span>Yes, I'll be there! 🎉</span>
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer", padding: "0.5rem", borderRadius: "8px" }}>
+                  <input type="radio" name="attendance" value="no" required />
+                  <span>Sorry, I can't make it 😢</span>
+                </label>
+              </div>
+            </section>
 
-                    <div style={modalStyles.inputGroup}>
-                      <label style={modalStyles.label} htmlFor="phone">Phone Number</label>
-                      <input
-                        style={modalStyles.input}
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        placeholder="(555) 123-4567"
-                      />
-                    </div>
-                  </section>
+            {/* Plus One */}
+            <section style={modalStyles.section}>
+              <h3 style={{ color: "#34495e", marginBottom: "1rem", fontSize: "1.3rem" }}>
+                Plus One
+              </h3>
 
-                  {/* Attendance */}
-                  <section style={modalStyles.section}>
-                    <h3 style={{ color: "#34495e", marginBottom: "1rem", fontSize: "1.3rem" }}>
-                      Will you be attending? *
-                    </h3>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                      <label style={{ display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer", padding: "0.5rem", borderRadius: "8px" }}>
-                        <input type="radio" name="attendance" value="yes" required />
-                        <span>Yes, I'll be there! 🎉</span>
-                      </label>
-                      <label style={{ display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer", padding: "0.5rem", borderRadius: "8px" }}>
-                        <input type="radio" name="attendance" value="no" required />
-                        <span>Sorry, I can't make it 😢</span>
-                      </label>
-                    </div>
-                  </section>
+              <div style={{ marginBottom: "1rem" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    name="plusOneIntent"
+                    onChange={handlePlusOneChange}
+                  />
+                  <span>I'll be bringing a plus one</span>
+                </label>
+              </div>
 
-                  {/* Plus One */}
-                  <section style={modalStyles.section}>
-                    <h3 style={{ color: "#34495e", marginBottom: "1rem", fontSize: "1.3rem" }}>
-                      Plus One
-                    </h3>
-
-                    <div style={{ marginBottom: "1rem" }}>
-                      <label style={{ display: "flex", alignItems: "center", gap: "0.75rem", cursor: "pointer" }}>
-                        <input
-                          type="checkbox"
-                          name="plusOneIntent"
-                          onChange={handlePlusOneChange}
-                        />
-                        <span>I'll be bringing a plus one</span>
-                      </label>
-                    </div>
-
-                    {showPromoField && (
-                      <div style={modalStyles.inputGroup}>
-                        <label style={modalStyles.label} htmlFor="promoCode">
-                          Plus One Access Code
-                          <span style={{ fontSize: "0.85rem", color: "#666", fontWeight: "400", marginLeft: "0.5rem" }}>
-                            (required to bring a plus one)
-                          </span>
-                        </label>
-                        <div style={modalStyles.promoContainer}>
-                          <input
-                            style={{
-                              ...modalStyles.input,
-                              flex: 1,
-                              borderColor: promoCodeError ? "#e74c3c" : plusOneEnabled ? "#27ae60" : "#e1e8ed"
-                            }}
-                            type="text"
-                            id="promoCode"
-                            value={promoCode}
-                            onChange={handlePromoCodeChange}
-                            placeholder="Enter your plus one access code"
-                          />
-                          <button
-                            type="button"
-                            onClick={handleVerifyClick}
-                            disabled={!promoCode.trim() || isVerifying}
-                            style={{
-                              ...modalStyles.verifyButton,
-                              opacity: (!promoCode.trim() || isVerifying) ? 0.5 : 1,
-                              cursor: (!promoCode.trim() || isVerifying) ? "not-allowed" : "pointer"
-                            }}
-                          >
-                            {isVerifying ? "Verifying..." : "Verify"}
-                          </button>
-                        </div>
-                        {promoCodeError && (
-                          <span style={{ fontSize: "0.85rem", color: "#e74c3c", marginTop: "0.25rem", display: "block" }}>
-                            {promoCodeError}
-                          </span>
-                        )}
-                        {plusOneEnabled && (
-                          <span style={{ fontSize: "0.85rem", color: "#27ae60", marginTop: "0.25rem", display: "block", fontWeight: "500" }}>
-                            ✓ Plus one access granted!
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {plusOneEnabled && (
-                      <div style={modalStyles.inputGroup}>
-                        <label style={modalStyles.label} htmlFor="plusOneName">Plus One's Full Name</label>
-                        <input
-                          style={modalStyles.input}
-                          type="text"
-                          id="plusOneName"
-                          name="plusOneName"
-                          placeholder="Enter your plus one's full name"
-                        />
-                        <input type="hidden" name="plusOne" value="yes" />
-                      </div>
-                    )}
-                  </section>
-
-                  {/* Meal Preferences */}
-                  <section style={modalStyles.section}>
-                    <h3 style={{ color: "#34495e", marginBottom: "1rem", fontSize: "1.3rem" }}>
-                      Meal Preferences
-                    </h3>
-
-                    <div style={modalStyles.inputGroup}>
-                      <label style={modalStyles.label} htmlFor="mealPreference">Your Meal Choice</label>
-                      <select
-                        style={modalStyles.input}
-                        id="mealPreference"
-                        name="mealPreference"
-                      >
-                        <option value="">Please select...</option>
-                        <option value="beef">Herb-Crusted Beef Tenderloin</option>
-                        <option value="chicken">Lemon Herb Roasted Chicken</option>
-                        <option value="salmon">Pan-Seared Salmon</option>
-                        <option value="vegetarian">Vegetarian Pasta Primavera</option>
-                        <option value="vegan">Vegan Mediterranean Bowl</option>
-                      </select>
-                    </div>
-
-                    {plusOneEnabled && (
-                      <div style={modalStyles.inputGroup}>
-                        <label style={modalStyles.label} htmlFor="plusOneMeal">Plus One's Meal Choice</label>
-                        <select
-                          style={modalStyles.input}
-                          id="plusOneMeal"
-                          name="plusOneMeal"
-                        >
-                          <option value="">Please select...</option>
-                          <option value="beef">Herb-Crusted Beef Tenderloin</option>
-                          <option value="chicken">Lemon Herb Roasted Chicken</option>
-                          <option value="salmon">Pan-Seared Salmon</option>
-                          <option value="vegetarian">Vegetarian Pasta Primavera</option>
-                          <option value="vegan">Vegan Mediterranean Bowl</option>
-                        </select>
-                      </div>
-                    )}
-
-                    <div style={modalStyles.inputGroup}>
-                      <label style={modalStyles.label} htmlFor="dietaryRestrictions">
-                        Dietary Restrictions or Allergies
-                      </label>
-                      <textarea
-                        style={{...modalStyles.input, minHeight: "80px", resize: "vertical"}}
-                        id="dietaryRestrictions"
-                        name="dietaryRestrictions"
-                        placeholder="Please let us know about any dietary restrictions, allergies, or special requirements..."
-                        rows="3"
-                      />
-                    </div>
-                  </section>
-
-                  {/* Additional Information */}
-                  <section style={modalStyles.section}>
-                    <h3 style={{ color: "#34495e", marginBottom: "1rem", fontSize: "1.3rem" }}>
-                      Additional Information
-                    </h3>
-
-                    <div style={modalStyles.inputGroup}>
-                      <label style={modalStyles.label} htmlFor="songRequest">Song Request</label>
-                      <input
-                        style={modalStyles.input}
-                        type="text"
-                        id="songRequest"
-                        name="songRequest"
-                        placeholder="Any special song you'd love to hear at the reception?"
-                      />
-                    </div>
-
-                    <div style={modalStyles.inputGroup}>
-                      <label style={modalStyles.label} htmlFor="message">Message for the Couple</label>
-                      <textarea
-                        style={{...modalStyles.input, minHeight: "100px", resize: "vertical"}}
-                        id="message"
-                        name="message"
-                        placeholder="Leave a sweet message for Stephanie & Joel!"
-                        rows="4"
-                      />
-                    </div>
-                  </section>
-
-                  {/* Submit Button */}
-                  <div style={{ textAlign: "center", marginTop: "2rem", paddingTop: "2rem", borderTop: "2px solid #f0f0f0" }}>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
+              {showPromoField && (
+                <div style={modalStyles.inputGroup}>
+                  <label style={modalStyles.label} htmlFor="promoCode">
+                    Plus One Access Code
+                    <span style={{ fontSize: "0.85rem", color: "#666", fontWeight: "400", marginLeft: "0.5rem" }}>
+                      (required to bring a plus one)
+                    </span>
+                  </label>
+                  <div style={modalStyles.promoContainer}>
+                    <input
                       style={{
-                        ...modalStyles.submitButton,
-                        opacity: isSubmitting ? 0.7 : 1,
-                        cursor: isSubmitting ? "not-allowed" : "pointer"
+                        ...modalStyles.input,
+                        flex: 1,
+                        borderColor: promoCodeError ? "#e74c3c" : plusOneEnabled ? "#27ae60" : "#e1e8ed"
+                      }}
+                      type="text"
+                      id="promoCode"
+                      value={promoCode}
+                      onChange={handlePromoCodeChange}
+                      placeholder="Enter your plus one access code"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleVerifyClick}
+                      disabled={!promoCode.trim() || isVerifying}
+                      style={{
+                        ...modalStyles.verifyButton,
+                        opacity: (!promoCode.trim() || isVerifying) ? 0.5 : 1,
+                        cursor: (!promoCode.trim() || isVerifying) ? "not-allowed" : "pointer"
                       }}
                     >
-                      {isSubmitting ? "Submitting..." : "Submit RSVP"}
+                      {isVerifying ? "Verifying..." : "Verify"}
                     </button>
-                    <p style={{ marginTop: "1rem", color: "#666", fontSize: "0.9rem" }}>
-                      Thank you for taking the time to RSVP!
-                    </p>
                   </div>
+                  {promoCodeError && (
+                    <span style={{ fontSize: "0.85rem", color: "#e74c3c", marginTop: "0.25rem", display: "block" }}>
+                      {promoCodeError}
+                    </span>
+                  )}
+                  {plusOneEnabled && (
+                    <span style={{ fontSize: "0.85rem", color: "#27ae60", marginTop: "0.25rem", display: "block", fontWeight: "500" }}>
+                      ✓ Plus one access granted!
+                    </span>
+                  )}
                 </div>
+              )}
+
+              {plusOneEnabled && (
+                <div style={modalStyles.inputGroup}>
+                  <label style={modalStyles.label} htmlFor="plusOneName">Plus One's Full Name</label>
+                  <input
+                    style={modalStyles.input}
+                    type="text"
+                    id="plusOneName"
+                    name="plusOneName"
+                    placeholder="Enter your plus one's full name"
+                  />
+                  <input type="hidden" name="plusOne" value="yes" />
+                </div>
+              )}
+            </section>
+
+            {/* Meal Preferences */}
+            <section style={modalStyles.section}>
+              <h3 style={{ color: "#34495e", marginBottom: "1rem", fontSize: "1.3rem" }}>
+                Meal Preferences
+              </h3>
+
+              <div style={modalStyles.inputGroup}>
+                <label style={modalStyles.label} htmlFor="mealPreference">Your Meal Choice</label>
+                <select
+                  style={modalStyles.input}
+                  id="mealPreference"
+                  name="mealPreference"
+                >
+                  <option value="">Please select...</option>
+                  <option value="beef">Herb-Crusted Beef Tenderloin</option>
+                  <option value="chicken">Lemon Herb Roasted Chicken</option>
+                  <option value="salmon">Pan-Seared Salmon</option>
+                  <option value="vegetarian">Vegetarian Pasta Primavera</option>
+                  <option value="vegan">Vegan Mediterranean Bowl</option>
+                </select>
               </div>
+
+              {plusOneEnabled && (
+                <div style={modalStyles.inputGroup}>
+                  <label style={modalStyles.label} htmlFor="plusOneMeal">Plus One's Meal Choice</label>
+                  <select
+                    style={modalStyles.input}
+                    id="plusOneMeal"
+                    name="plusOneMeal"
+                  >
+                    <option value="">Please select...</option>
+                    <option value="beef">Herb-Crusted Beef Tenderloin</option>
+                    <option value="chicken">Lemon Herb Roasted Chicken</option>
+                    <option value="salmon">Pan-Seared Salmon</option>
+                    <option value="vegetarian">Vegetarian Pasta Primavera</option>
+                    <option value="vegan">Vegan Mediterranean Bowl</option>
+                  </select>
+                </div>
+              )}
+
+              <div style={modalStyles.inputGroup}>
+                <label style={modalStyles.label} htmlFor="dietaryRestrictions">
+                  Dietary Restrictions or Allergies
+                </label>
+                <textarea
+                  style={{...modalStyles.input, minHeight: "80px", resize: "vertical"}}
+                  id="dietaryRestrictions"
+                  name="dietaryRestrictions"
+                  placeholder="Please let us know about any dietary restrictions, allergies, or special requirements..."
+                  rows="3"
+                />
+              </div>
+            </section>
+
+            {/* Additional Information */}
+            <section style={modalStyles.section}>
+              <h3 style={{ color: "#34495e", marginBottom: "1rem", fontSize: "1.3rem" }}>
+                Additional Information
+              </h3>
+
+              <div style={modalStyles.inputGroup}>
+                <label style={modalStyles.label} htmlFor="songRequest">Song Request</label>
+                <input
+                  style={modalStyles.input}
+                  type="text"
+                  id="songRequest"
+                  name="songRequest"
+                  placeholder="Any special song you'd love to hear at the reception?"
+                />
+              </div>
+
+              <div style={modalStyles.inputGroup}>
+                <label style={modalStyles.label} htmlFor="message">Message for the Couple</label>
+                <textarea
+                  style={{...modalStyles.input, minHeight: "100px", resize: "vertical"}}
+                  id="message"
+                  name="message"
+                  placeholder="Leave a sweet message for Stephanie & Joel!"
+                  rows="4"
+                />
+              </div>
+            </section>
+
+            {/* Submit Button */}
+            <div style={{ textAlign: "center", marginTop: "2rem", paddingTop: "2rem", borderTop: "2px solid #f0f0f0" }}>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                style={{
+                  ...modalStyles.submitButton,
+                  opacity: isSubmitting ? 0.7 : 1,
+                  cursor: isSubmitting ? "not-allowed" : "pointer"
+                }}
+              >
+                {isSubmitting ? "Submitting..." : "Submit RSVP"}
+              </button>
+              <p style={{ marginTop: "1rem", color: "#666", fontSize: "0.9rem" }}>
+                Thank you for taking the time to RSVP!
+              </p>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>
